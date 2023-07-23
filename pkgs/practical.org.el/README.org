@@ -1,0 +1,427 @@
+#+CAPTION: Screenshot
+#+NAME:   fig:SCREENSHOT
+[[docs/screenshot.png]]
+
+* practical.org.el
+A simple, all-in-one workflow system for regular Emacs.
+
+Includes a useful GTD system (Getting Things Done), time management system,
+habit management system, contact management system, Zettelkasten, and mobile app
+synchronisation out-of-the box.
+
+* Motivation
+
+Using only stock Emacs, I want to build a lightweight, straightforward, and
+useful GTD+Zettelkasten workflow system that is tailored specifically to my
+needs for daily tasks.
+
+I've looked into and utilised a few GTD systems, and I found them to be overly
+complicated for what I needed.
+
+The configuration also comes pre-configured with Zettelkasten, Contact
+Management, and Habit Management systems in addition to GTD workflow.
+
+The workflow configuration aims to create a functional GTD system using only
+stock Emacs and a small number of packages.
+
+The =bbdb= v3 package is the only custom package that can be installed via
+MELPA/ELPA to enable and support CMS. The configuration will function without
+the package, but the CMS menus in the org-capture menu won't show up. The
+package is optional.
+
+* Installation
+
+Add the next line to your =init.el= file for installation.
+The org-directory needs to be adjusted to your preferences.
+Additionally, include the complete path leading to the =practical.org.el= file.
+
+#+BEGIN_SRC bash
+# Clone the repository
+git clone https://github.com/jjuliano/practical.org.el.git ~/.emacs.d/pkgs/practical.org.el
+
+# Append the following lines to your init.el file
+cat << EOF >> ~/.emacs.d/init.el
+;; org directory
+(setq org-directory "~/Documents/Emacs/org")
+
+;; mobile-org directory
+(setq org-mobile-directory (expand-file-name "~/Dropbox/Apps/MobileOrg"))
+
+;; 12 hours format
+(setq org-timestamp-12-hours t)
+
+;; hide all non scheduled items from agenda view
+(setq org-hide-all-non-scheduled-items t)
+
+;; don's source the tags/context from the context.txt file
+(setq org-disable-context-file t)
+
+;; practical.org.el GTD+Zettelkasten workflow
+(setq practical-org-mode-el
+      (expand-file-name "~/.emacs.d/pkgs/practical.org.el/practical.org.el"))
+(load-file practical-org-mode-el)
+EOF
+#+END_SRC
+
+Copy the supplied files to your org-directory after that.
+Check out [[#included-org-files][Included org files]] for further information.
+
+The "notes/" directory must be created as well for your Zettelkasten notes.
+For further information, see [[#zettelkasten][Zettelkasten]].
+
+#+BEGIN_SRC bash
+# Make sure that the org directory & the zettelkasten notes directory are created
+mkdir -p ~/Documents/Emacs/org/notes
+
+# Copy the included files into the org directory
+cp ~/.emacs.d/pkgs/practical.org.el/files/*.{txt,org} ~/Documents/Emacs/org/.
+#+END_SRC
+
+Start Emacs next, and then hit =C-c=.
+When the org-capture menu appears, start typing the first letter.
+
+For the [[#contact-management][Contact Management]] functionality, you might want to install the =bbdb=
+package. To accomplish this, simply execute =M-x package-install= followed by
+=bbdb=.
+
+Once Emacs has been restarted, pressing =C-c= will display the CMS menu.
+
+** Included org files
+
+The parent nodes used in this workflow setup are predetermined.
+The =files/= directory contains the preferred org file templates.
+To your org-directory, simply copy those files.
+
+A =context.txt= file that contains all the system-wide tags and context that you
+can use in the org file can also be found in addition to the org-files.
+
+* Settings
+
+The behaviour of this configuration can be altered by changing a number of
+variables.
+
+They are the =org-hide-all-non-scheduled-items=, =org-disable-context-file=, and
+=org-timestamp-12-hours=.
+
+** 12 hours or 24 hours time format
+
+You can provide the =org-timestamp-12-hours= variable to specify the timestamp
+format that will be applied to your org-agenda-files.
+
+If the current timestamp has a value of =t=, American time format will be used;
+otherwise, set it to =nil= or do not specify the variable.
+
+#+BEGIN_SRC lisp
+;; Setting this variable to 't' will use the American style (12-hour) timestamp,
+;; otherwise if you did not define the variable or set the value to 'nil', it
+;; will use the default European (24-hour) timestamp.
+(setq org-timestamp-12-hours t)
+#+END_SRC
+
+** Hide all non-scheduled items in Agenda view
+
+By default, all unscheduled items, including those in your inbox and notes, are
+displayed in the Agenda view. You can then see every item that was created at
+that specific timestamp.
+
+Set the =org-hide-all-non-scheduled-items= to =t= to hide all non-scheduled
+items in agenda view.
+
+#+BEGIN_SRC lisp
+;; Setting this variable to 't' will hide all the non-scheduled items such as
+;; 'inbox' and 'notes'. If you did not define the variable, or set the value of
+;; this variable to 'nil', it will show all items in the Agenda view.
+(setq org-hide-all-non-scheduled-items t)
+#+END_SRC
+
+** Use context file
+
+The =context.txt= file allows you to add, remove, and change context and tags.
+
+All of the additional context/tags that you can use in your org entries will be
+contained in this file, which will be sourced.
+
+Set the =org-disable-context-file= variable or simply skip copying the
+=context.txt= file to disable this feature.
+
+#+BEGIN_SRC lisp
+;; Setting this variable to 't' will disable sourcing all the context/tags from
+;; the context file. If you did not create this file, or set the value of
+;; this variable to 't', it will use the tags defined on per-file basis
+(setq org-disable-context-file t)
+#+END_SRC
+
+* Features
+
+** Org-Capture Menu
+
+You begin by launching the capture menu.
+
+You can choose the GTD or Zettelkasten actions you want to perform from this
+menu. All of the options that will be available in the capture menu are listed
+here.
+
+Pressing =C-c a= brings up the org agenda.
+
+| Action              | Description                                     | File                           | Keystroke        |
+|---------------------+-------------------------------------------------+--------------------------------+------------------|
+| Inbox               | Add new inbox item                              | inbox.org                      | C-c c i or C-c i |
+| One Step Task       | Create a single step task                       | projects.org/One Step Tasks    | C-c c T or C-c T |
+| Meeting             | Create new Scheduled meeting item               | agenda.org/Recurring           | C-c c m          |
+| Recurring Meeting   | Create a new recurring meeting item             | agenda.org/Meeting             | C-c c r          |
+| Routine             | Create a new routine item                       | projects.org/Recurring/Routine | C-c c R          |
+| Habit               | Create a new habit item                         | projects.org/Recurring/Habit   | C-c c h          |
+| Note                | Create a new note entry to notes.org            | notes.org                      | C-c c n          |
+| Brain dump          | Create a note as a new org file                 | notes/<file>.org               | C-c c b or C-c b |
+| Brain dump at point | Create a note as a new org file at point        | notes/<file>.org               | C-c c N or C-c N |
+| Search Tags         | Search all tags including tags from notes/*.org |                                | C-c c t or C-c t |
+| Edit context file   | Add/Remove/Edit context or tags                 | context.txt                    | C-c c E or C-c E |
+
+** Recurring Agenda, Routine and Habit/Goal items
+
+Scheduled repeated items that will show up in the agenda view are those marked
+as Recurring, Routine, and Habit.
+
+There is a pre-set schedule value in the capture menu.
+
+| Type              | Description                        | Initial State                 | Pre-defined schedules | File                           |
+|-------------------+------------------------------------+-------------------------------+-----------------------+--------------------------------|
+| Recurring Meeting | Meeting schedules                  | MEETING/APPOINTMENT/CANCELLED | Every day             | agenda.org/Recurring           |
+| Routine           | Tasks that needs to do repeatedly  | TODO/NEXT                     | Every day             | projects.org/Recurring/Routine |
+| Habit             | Repeated tasks with a visual graph | HABIT/GOAL/REFLECTION         | 2 to 4 days           | projects.org/Recurring/Habit   |
+
+When a habit task is finished, it switches back to =TODO= from =DONE= and the
+moment it was switched to =DONE= is recorded in the =LOGBOOK= folder.
+
+Habit tasks start counting on the start date.
+
+*** Habits
+
+=Achievement Goals= and =Habit Goals= are the two different categories of
+habits.
+
+=Achievement Goals= are =results-based=, whereas =Habit Goals= are
+=process-oriented=.
+
+You can create items with the tags =GOAL= or =HABIT= that represent either an
+achievement or a habit.
+
+Additionally, a physical place or location will be asked, which is where you
+will carry out the habit. The drawer labelled =:LOCATION:= will have the
+location value.
+
+**** Achievement Goal
+
+Achievement goals are habit items with a deadline and will be closed after a
+deadline is passed. Think of achievement goal as a one-time deal that you don't
+want to repeat.
+
+To set a deadline on a habit item, type =C-c C-d=.
+
+Achievement items can also be the resulting goal of an habit item.
+
+**** Habit Goal
+
+An important thing to remember in Habits is that you need to think of the 3 W's,
+the What, When and Where.
+
+If your achievement goal is to "Loose weight", then your habit item will have a
+title of "Jogging 30 mins a day", scheduled "every 7AM" in the morning, with a
+location of "At the park".
+
+**** Refinement Habit
+
+You might also want to create a refinement habit, which you can create with a
+tag =REFINEMENT= habit type. Refinement habit allows you to re-evaluate your
+goals, and see and adjust it to fit you.
+
+**** Missing a Streak
+
+It is important to keep a streak of your habits in a consecutive intervals,
+however, there are instances that you might miss your goals. Missed goals have a
+visual graph highlighted in RED. Keep a positive hopeful attitude when you
+missed your goals so you can go back to it again with determination, be
+reasonable about it. With a recurring refinement habit, you can re-evaluate all
+your goals so that they "works for you" instead of "against you".
+
+** Zettelkasten
+
+Zettelkasten is a note taking method where notes are grouped together with
+similar tags. The way the configuration implement Zettelkasten is using the
+built-in tags property, which will be asked each time you create a new note or a
+brain dump.
+
+To search for all the tags, press =C-c c t or C-c t=, then you can press =TAB= to
+expand all the tags from all the agenda files and =note/*.org= files. After
+selecting the tag, it will present a list of all files associated with those
+tags. To open the selected file, press =TAB=.
+
+You can also create a new brain dump note on the current point by pressing the
+=C-c c N or C-c N=, which will create a new org file, with the current buffer or
+point. The URL of the point or buffer will be stored in the =:LOCATION:= drawer
+property, which you can visit via =C-c C-o= to visit the referring file and point.
+
+** Contact Management
+
+If you installed the =bbdb= version 3 package (The Insidious Big Brother
+Database), the capture menu will have additional items, namely:
+
+| Action         | Description                | Keystroke |
+|----------------+----------------------------+-----------|
+| All Contacts   | Show all contacts          | C-c c B   |
+| New Contact    | Create a new contact       | C-c c c   |
+| Search Contact | Regexp search all contacts | C-c c s   |
+
+*** bbdb-mode keystrokes
+
+While on =bbdb= window, you can add, remove, insert entries and copy each
+contacts. Here are the most useful =bbdb= keystrokes, note that they don't
+require the control keys to be pressed.
+
+| Action | Description          | Keystroke |
+|--------+----------------------+-----------|
+| Create | Create a new contact | c         |
+| Edit   | Edit contact         | e         |
+| Insert | Insert a line        | i         |
+| Copy   | Copy the contact     | Cr        |
+| Save   | Save the contact     | s         |
+
+*** bbdb link
+
+To link to a BBDB record, just create a link in your org-files with the
+following format:
+
+#+BEGIN_SRC org
+[[bbdb:Joel Bryan Juliano]]
+#+END_SRC
+
+To visit this =bbdb= record, just type =C-c C-o=.
+
+* Workflow
+
+For most workflow, everything starts with an =inbox=. You can start your day
+with filing up the =inbox= items and refiling them into =projects= or =agenda=.
+
+Each item will be prompted for an initial state, and each item state has it's
+own progressions.
+
+Here's the table of the initial states. Changing states can be performed via
+=C-c C-t=.
+
+** GTD states
+
+Inbox items starts with a =TODO=, then each states can be toggled to =NEXT=,
+=DOING= and =DONE=. Toggle the task to =WAITING= if the task is awaiting
+dependency, or =ARCHIVE= to completely hide it from agenda view,
+see [[Archive items]] for more information on archiving.
+
+| State   | Description                                      |
+|---------+--------------------------------------------------|
+| TODO    | Starting state                                   |
+| NEXT    | Next priority item to begin working              |
+| DOING   | Currently doing / Work in progress               |
+| DONE    | Mark as done (ignored in agenda view)            |
+| WAITING | Awaiting dependency task or being hold           |
+| ARCHIVE | Tag as archive the item (ignored in agenda view) |
+
+** Other states
+
+Other states are useful to provide more information about the task. Additional
+metadata and properties will be added If it is created via org-capture =C-c c=.
+
+| State                              | Description                                     |
+|------------------------------------+-------------------------------------------------|
+| REVIEW/FEEDBACK                    | Item is being reviewed or awaiting feedback     |
+| BLOCKED/CANCELLED/POSTPONED/CLOSED | Item is blocked, cancelled, postponed or closed |
+| MEETING/APPOINTMENT                | Meeting or Appointment agenda                   |
+| NOTE/TITLE/REFERENCE/SUBJECT       | Note item                                       |
+
+* Archive items
+
+Over time, you can accumulate items that can clutter your agenda files.
+You can clear up your todo/agenda items by archiving them.
+
+There are 2 ways to archive an item.
+
+1. If you set the item tag as =ARCHIVE=, it will be ignored in the agenda view.
+2. Permanently move the item to archive by pressing =C-c C-x C-a=.
+
+Number 2 will move the item into a =.org_archive= file, which will not be
+displayed in the org agenda.
+
+To toggle the display of all the archived files in org agenda, press
+=C-c a n v a=. Take note that =DONE= archived items will not be shown, you would
+need to press =C-c a t= then select =DONE= then =r=.
+
+* Refiling
+
+Items can be refiled to and from the agenda files. To refile an item press
+=C-c C-w=. This configuration can refile to an org agenda file with a parent
+heading at the same time. If the heading does not exist, it will be created.
+
+* Scheduling, Prioritization, Context and Time management
+
+There are variety of ways to provide more information on an item, such as it's
+prioritization, schedule, context, time spent and effort on an item.
+
+This section, we'll discuss how to set priority, context, estimated efforts and
+keep a record on time spent on an item.
+
+** Prioritization
+
+Items can be prioritized by pressing =C-c ,= or =S-<up>/<down>=, the priority
+will appear next to the item name for example =* TODO [#A] Study for Exam=,
+where the priority is displayed as =[#A]=, =[#B]= or =[#C]=, where =[#A]= is the
+highest.
+
+** Estimated Effort
+
+Effort estimation helps with planning the required time to perform the
+task. With estimated effort, it will give you an idea what is the initial
+perceived time to consume on an item.
+
+To estimate the effort on an item, press =C-c C-x e=, which will present a
+prompt to ask about the estimated time on the item. There are predefined effort
+on each org agenda files. Press =<TAB>= to display all
+the predefined time.
+
+** Context
+
+Like Tags, items can have context that will help you get more information where
+those items are associated. By GTD convention, context is a tag that starts with
+an =@=. There are predefined contexts per each org agenda files, such as
+=@home=, =@work=, =@mail=, =@comp= and =@web=. You can add additional contexts
+by modifying the =#+TAGS:= line on top of each agenda file.
+
+If you have a =context.txt= file in your org-directory, it will source this file
+instead. There is a capture menu item that edit this file. To edit this file,
+press =C-c c E or C-c E=. See the sample =context.txt= file in the =files/=
+directory.
+
+To add a context on an item, press =C-c C-c=, then select the context of the
+item, which will be added to the item's existing tags.
+
+** Scheduling, Deadlines and Time Management
+
+Items can be scheduled to a date or with a time which will appear significantly
+in the agenda view as =Scheduled:=. To schedule an item, press =C-c C-s=.
+
+You can also set a deadline on an item by pressing =C-c C-d=, which will display
+a =Deadline:= line in the agenda view.
+
+Those information presented in the agenda view will help you plan, focus and
+prioritize on the item.
+
+Another time management feature that you add to the item is using the =Clock
+in/out= functionality, which can give your item more information on how much
+time did you spend on it. =Clocked in= items are highlighted in the agenda
+view and will disappear when =Clocked out=. To clock-in or out the item,
+press =C-c C-x C-i= and =C-c C-x C-o=. Times and it's sum will be logged in the
+=LOGBOOK= drawer.
+
+* Mobile Org
+
+If you want to sync your org agenda files to your mobile apps such as [[https://mobileorg.github.io/][MobileOrg]],
+[[https://beorgapp.com/][beOrg]], [[http://www.orgzly.com/][Orgzly]], etc. All you need to do is set the =org-mobile-directory=
+pointing to your mobile sync directory, and the configuration will setup an idle
+timer sync every 5 minutes.

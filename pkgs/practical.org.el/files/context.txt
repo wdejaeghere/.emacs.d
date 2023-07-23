@@ -1,0 +1,14 @@
+@home
+@work
+@mail
+@comp
+@web
+@errands
+@calls
+@grocery
+@phone
+@personal
+@business
+@family
+@health
+@finance
